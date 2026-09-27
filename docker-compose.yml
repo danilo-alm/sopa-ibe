@@ -2,9 +2,7 @@ name: sopa-ibe-prod
 
 services:
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/danilo-alm/sopa-ibe-backend:latest
     restart: unless-stopped
     environment:
       NODE_ENV: production
@@ -20,9 +18,7 @@ services:
       - "3000"
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: ghcr.io/danilo-alm/sopa-ibe-frontend:latest
     restart: unless-stopped
     depends_on:
       - backend
