@@ -114,6 +114,35 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
   const [novoContato, setNovoContato] = useState({ nome: '', numeroWhatsApp: '' });
   const idsConhecidos = useRef<Set<number>>();
   const sincronizando = useRef(false);
+  const audioContexto = useRef<AudioContext>();
+
+  const tocarAvisoNovoPedido = useCallback(() => {
+    // O aviso é sintetizado no navegador para não exigir um asset ou download externo.
+    const AudioContextClass = window.AudioContext || (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const contexto = audioContexto.current ?? new AudioContextClass();
+    audioContexto.current = contexto;
+    void contexto.resume().then(() => {
+      const agora = contexto.currentTime;
+      const ganho = contexto.createGain();
+      ganho.gain.setValueAtTime(0.0001, agora);
+      ganho.gain.exponentialRampToValueAtTime(0.16, agora + 0.015);
+      ganho.gain.exponentialRampToValueAtTime(0.0001, agora + 0.42);
+      ganho.connect(contexto.destination);
+
+      [659.25, 783.99].forEach((frequencia, indice) => {
+        const oscilador = contexto.createOscillator();
+        oscilador.type = 'sine';
+        oscilador.frequency.value = frequencia;
+        oscilador.connect(ganho);
+        oscilador.start(agora + indice * 0.08);
+        oscilador.stop(agora + 0.42);
+      });
+    }).catch(() => {
+      // O navegador pode bloquear áudio até que exista uma interação do administrador.
+    });
+  }, []);
 
   const request = useCallback(async <T,>(path: string, options: RequestInit = {}) => {
     try {
@@ -154,8 +183,11 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       const conhecidos = idsConhecidos.current;
       if (conhecidos) {
         const novos = listaPedidos.pedidos.filter((pedido) => !conhecidos.has(pedido.id));
-        if (novos.length === 1) setAvisoNovoPedido(`Novo pedido #${novos[0].id} recebido`);
-        if (novos.length > 1) setAvisoNovoPedido(`${novos.length} novos pedidos recebidos`);
+        if (novos.length > 0) {
+          tocarAvisoNovoPedido();
+          if (novos.length === 1) setAvisoNovoPedido(`Novo pedido #${novos[0].id} recebido`);
+          if (novos.length > 1) setAvisoNovoPedido(`${novos.length} novos pedidos recebidos`);
+        }
       }
       idsConhecidos.current = new Set(listaPedidos.pedidos.map((pedido) => pedido.id));
       setPedidos(listaPedidos.pedidos);
@@ -167,7 +199,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     } finally {
       sincronizando.current = false;
     }
-  }, [caminhoPedidos, request]);
+  }, [caminhoPedidos, request, tocarAvisoNovoPedido]);
 
   useEffect(() => {
     void carregar();
