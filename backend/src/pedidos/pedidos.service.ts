@@ -72,21 +72,32 @@ export class PedidosService {
 
   async metricas() {
     const pedidos = await this.prisma.pedido.findMany();
-    const ativos = pedidos.filter((pedido) => pedido.statusPedido !== 'CANCELADO');
-    const soma = (forma: FormaPagamento) =>
-      ativos
+    const chaveHoje = this.chaveDoDia(new Date());
+    const pedidosDeHoje = pedidos.filter((pedido) => this.chaveDoDia(pedido.criadoEm) === chaveHoje);
+    const resumir = (lista: typeof pedidos) => {
+      const ativos = lista.filter((pedido) => pedido.statusPedido !== 'CANCELADO');
+      const soma = (forma: FormaPagamento) => ativos
         .filter((pedido) => pedido.formaPagamento === forma)
         .reduce((total, pedido) => total + pedido.valorTotal, 0);
-
-    return {
-      totalSopas: ativos.reduce((total, pedido) => total + pedido.quantidadeSopas, 0),
-      faturamentoTotal: ativos.reduce((total, pedido) => total + pedido.valorTotal, 0),
-      faturamentoPix: soma('PIX'),
-      faturamentoDinheiro: soma('DINHEIRO'),
-      pedidosPendentes: pedidos.filter((p) => p.statusPedido === 'PENDENTE').length,
-      pedidosEmRota: pedidos.filter((p) => p.statusPedido === 'SAIU_PARA_ENTREGA').length,
-      pedidosEntregues: pedidos.filter((p) => p.statusPedido === 'ENTREGUE').length,
+      return {
+        totalSopas: ativos.reduce((total, pedido) => total + pedido.quantidadeSopas, 0),
+        faturamentoTotal: ativos.reduce((total, pedido) => total + pedido.valorTotal, 0),
+        faturamentoPix: soma('PIX'),
+        faturamentoDinheiro: soma('DINHEIRO'),
+        pedidosPendentes: lista.filter((p) => p.statusPedido === 'PENDENTE').length,
+        pedidosEmRota: lista.filter((p) => p.statusPedido === 'SAIU_PARA_ENTREGA').length,
+        pedidosEntregues: lista.filter((p) => p.statusPedido === 'ENTREGUE').length,
+      };
     };
+    return { hoje: resumir(pedidosDeHoje), geral: resumir(pedidos) };
+  }
+
+  private chaveDoDia(data: Date) {
+    const partes = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Maceio', year: 'numeric', month: '2-digit', day: '2-digit',
+    }).formatToParts(data);
+    const valor = (tipo: Intl.DateTimeFormatPartTypes) => partes.find((parte) => parte.type === tipo)?.value;
+    return `${valor('year')}-${valor('month')}-${valor('day')}`;
   }
 
   atualizarStatus(id: number, statusPedido: StatusPedido) {

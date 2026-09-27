@@ -46,7 +46,7 @@ type PaginatedPedidos = {
   pedidos: Pedido[];
   paginacao: { pagina: number; porPagina: number; total: number; totalPaginas: number };
 };
-type Metricas = {
+type ResumoMetricas = {
   totalSopas: number;
   faturamentoTotal: number;
   faturamentoPix: number;
@@ -55,6 +55,7 @@ type Metricas = {
   pedidosEmRota: number;
   pedidosEntregues: number;
 };
+type Metricas = { hoje: ResumoMetricas; geral: ResumoMetricas };
 
 const statusPedido: StatusPedido[] = ['PENDENTE', 'CONFIRMADO', 'SAIU_PARA_ENTREGA', 'ENTREGUE', 'CANCELADO'];
 const nomeStatus: Record<StatusPedido, string> = {
@@ -281,7 +282,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
       </header>
 
       <div className="mx-auto max-w-7xl space-y-5 px-3 py-5 sm:px-4 sm:py-8">
-        <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-[.18em] text-zinc-500">Visão geral</p><h1 className="mt-1 text-2xl font-black sm:text-3xl">Gestão da campanha</h1><p className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${tempoRealConectado ? 'text-emerald-700' : 'text-amber-700'}`}><Radio size={14} className={tempoRealConectado ? 'animate-pulse' : ''} />{tempoRealConectado ? 'Ao vivo · pedidos chegam instantaneamente' : 'Reconectando · sincronização de segurança ativa'}{ultimaAtualizacao ? ` · ${ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : ''}</p></div><button onClick={() => void carregar()} className="btn-soft !h-11 !w-11 !p-0" aria-label="Atualizar agora"><RefreshCw size={18} className={carregando ? 'animate-spin' : ''} /></button></div>
+        <div className="flex items-end justify-between gap-3"><div><p className="text-xs font-extrabold uppercase tracking-[.18em] text-zinc-500">Operação de hoje</p><h1 className="mt-1 text-2xl font-black sm:text-3xl">Gestão da campanha</h1><p className={`mt-2 flex items-center gap-1.5 text-xs font-bold ${tempoRealConectado ? 'text-emerald-700' : 'text-amber-700'}`}><Radio size={14} className={tempoRealConectado ? 'animate-pulse' : ''} />{tempoRealConectado ? 'Ao vivo · pedidos chegam instantaneamente' : 'Reconectando · sincronização de segurança ativa'}{ultimaAtualizacao ? ` · ${ultimaAtualizacao.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}` : ''}</p></div><button onClick={() => void carregar()} className="btn-soft !h-11 !w-11 !p-0" aria-label="Atualizar agora"><RefreshCw size={18} className={carregando ? 'animate-spin' : ''} /></button></div>
         {erro && <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-sm font-bold text-red-700"><TriangleAlert className="shrink-0" size={18} />{erro}</div>}
         {avisoNovoPedido && <div role="status" className="flex flex-col gap-3 rounded-2xl border border-ibe-yellow bg-ibe-cream p-4 shadow-soft sm:flex-row sm:items-center"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-ibe-yellow"><BellRing size={20} /></span><div className="min-w-0 flex-1"><p className="font-black">{avisoNovoPedido}</p><p className="text-sm text-zinc-600">A lista e os indicadores já foram atualizados automaticamente.</p></div><button onClick={() => { setFiltro('PENDENTE'); setPagina(1); setAvisoNovoPedido(''); }} className="btn-dark">Ver pendentes</button><button onClick={() => setAvisoNovoPedido('')} className="btn-soft">Dispensar</button></div>}
 
@@ -315,12 +316,12 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
 
 function MetricasGrid({ metricas }: { metricas: Metricas }) {
   const cards = [
-    { titulo: 'Sopas vendidas', valor: String(metricas.totalSopas), detalhe: 'pedidos não cancelados', icon: Soup },
-    { titulo: 'Faturamento', valor: dinheiro(metricas.faturamentoTotal), detalhe: `Pix ${dinheiro(metricas.faturamentoPix)} · Dinheiro ${dinheiro(metricas.faturamentoDinheiro)}`, icon: Banknote },
-    { titulo: 'Pendentes', valor: String(metricas.pedidosPendentes), detalhe: 'aguardando confirmação', icon: ClipboardCheck },
-    { titulo: 'Em rota', valor: String(metricas.pedidosEmRota), detalhe: `${metricas.pedidosEntregues} já entregues`, icon: Route },
+    { titulo: 'Sopas vendidas hoje', valor: String(metricas.hoje.totalSopas), detalhe: 'pedidos não cancelados de hoje', icon: Soup, destaque: true },
+    { titulo: 'Faturamento de hoje', valor: dinheiro(metricas.hoje.faturamentoTotal), detalhe: `Pix ${dinheiro(metricas.hoje.faturamentoPix)} · Dinheiro ${dinheiro(metricas.hoje.faturamentoDinheiro)}`, icon: Banknote },
+    { titulo: 'Pendentes hoje', valor: String(metricas.hoje.pedidosPendentes), detalhe: 'aguardando confirmação', icon: ClipboardCheck },
+    { titulo: 'Em rota hoje', valor: String(metricas.hoje.pedidosEmRota), detalhe: `${metricas.hoje.pedidosEntregues} já entregues hoje`, icon: Route },
   ];
-  return <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">{cards.map(({ titulo, valor, detalhe, icon: Icon }) => <div key={titulo} className="card !p-4 sm:!p-5"><div className="grid h-9 w-9 place-items-center rounded-lg bg-ibe-cream text-ibe-black"><Icon size={19} /></div><p className="mt-4 text-xs font-bold text-zinc-500">{titulo}</p><p className="mt-1 break-words text-xl font-black sm:text-2xl">{valor}</p><p className="mt-1 text-[11px] leading-4 text-zinc-400 sm:text-xs">{detalhe}</p></div>)}</section>;
+  return <section aria-label="Resumo das vendas"><div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{cards.map(({ titulo, valor, detalhe, icon: Icon, destaque }) => <div key={titulo} className={`card !p-4 sm:!p-5 ${destaque ? '!border-ibe-yellow !bg-ibe-cream ring-1 ring-ibe-yellow' : ''}`}><div className="grid h-9 w-9 place-items-center rounded-lg bg-ibe-cream text-ibe-black"><Icon size={19} /></div><p className="mt-4 text-xs font-bold text-zinc-500">{titulo}</p><p className="mt-1 break-words text-xl font-black sm:text-2xl">{valor}</p><p className="mt-1 text-[11px] leading-4 text-zinc-400 sm:text-xs">{detalhe}</p></div>)}</div><details className="mt-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 text-sm"><summary className="cursor-pointer font-bold text-zinc-600">Ver acumulado geral</summary><div className="mt-3 grid gap-3 border-t pt-3 text-zinc-600 sm:grid-cols-3"><p><span className="block text-xs font-bold uppercase tracking-wide text-zinc-400">Sopas vendidas</span><strong className="text-lg text-zinc-900">{metricas.geral.totalSopas}</strong></p><p><span className="block text-xs font-bold uppercase tracking-wide text-zinc-400">Faturamento</span><strong className="text-lg text-zinc-900">{dinheiro(metricas.geral.faturamentoTotal)}</strong></p><p><span className="block text-xs font-bold uppercase tracking-wide text-zinc-400">Entregues</span><strong className="text-lg text-zinc-900">{metricas.geral.pedidosEntregues}</strong></p></div></details></section>;
 }
 
 function PedidosLista({ pedidos, atualizarStatus, abrirComprovante, cancelarEstoque, confirmarPagamento }: { pedidos: Pedido[]; atualizarStatus: (p: Pedido, s: StatusPedido) => void; abrirComprovante: (p: Pedido) => void; cancelarEstoque: (p: Pedido) => void; confirmarPagamento: (p: Pedido) => void }) {

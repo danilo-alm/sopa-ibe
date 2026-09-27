@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AuthModule } from './auth/auth.module';
@@ -11,6 +12,7 @@ import { PrismaModule } from './prisma/prisma.module';
 @Module({
   imports: [
     PrismaModule,
+    ScheduleModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -23,4 +25,3 @@ import { PrismaModule } from './prisma/prisma.module';
   ],
 })
 export class AppModule {}
-
