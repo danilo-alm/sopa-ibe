@@ -186,7 +186,7 @@ export function OrderPage() {
         <div className="mx-auto mt-12 max-w-5xl">
           <p className="text-xs font-extrabold uppercase tracking-[.22em] text-ibe-yellow">Domingo de sopas</p>
           <h1 className="mt-3 max-w-2xl text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">Uma sopa quentinha.<br />Um gesto que transforma.</h1>
-          <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400 sm:text-base">Faça seu pedido e participe da ação beneficente da Igreja Batista Esperança.</p>
+          <p className="mt-5 max-w-xl text-sm leading-6 text-zinc-400 sm:text-base">Faça seu pedido e participe desta ação em prol da igreja.</p>
         </div>
       </header>
 
@@ -206,7 +206,7 @@ export function OrderPage() {
           <section className="card">
             <SecaoNumero numero="02" titulo="Quantas sopas?" />
             <div className="mt-5 flex items-center justify-between rounded-2xl bg-ibe-cream p-3 sm:p-5">
-              <div><p className="font-extrabold">Sopa beneficente</p><p className="mt-1 text-sm text-zinc-600">{dinheiro(config.valorUnitarioSopa)} por unidade</p></div>
+              <div><p className="font-extrabold">Sopa em prol da igreja</p><p className="mt-1 text-sm text-zinc-600">{dinheiro(config.valorUnitarioSopa)} por unidade</p></div>
               <div className="flex items-center gap-2">
                 <button type="button" aria-label="Diminuir quantidade" onClick={() => setQuantidade((q) => Math.max(1, q - 1))} className="grid h-11 w-11 place-items-center rounded-xl bg-white shadow-sm"><Minus size={19} /></button>
                 <output className="w-9 text-center text-xl font-black">{quantidade}</output>

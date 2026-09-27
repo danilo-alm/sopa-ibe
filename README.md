@@ -1,6 +1,6 @@
 # Sopas IBE Gerais
 
-Sistema mobile-first para a venda beneficente mensal de sopas da Igreja Batista Esperança. Inclui formulário público, Pix BR Code, comprovantes, contatos de plantão e painel administrativo.
+Sistema mobile-first para a venda mensal de sopas em prol da igreja. Inclui formulário público, Pix BR Code, comprovantes, contatos de plantão e painel administrativo.
 
 O painel recebe novos pedidos imediatamente por um canal SSE autenticado, também atualiza ao retornar para a aba e mantém uma sincronização periódica como fallback, sem recarregar a página.
 
