@@ -1,0 +1,15 @@
+node_modules
+dist
+*.tsbuildinfo
+frontend/vite.config.js
+frontend/vite.config.d.ts
+.env
+*.log
+.DS_Store
+backend/prisma/data/*.db*
+backend/prisma/data/write-check
+!backend/prisma/data/.gitkeep
+uploads/*
+!uploads/.gitkeep
+data/*
+!data/.gitkeep

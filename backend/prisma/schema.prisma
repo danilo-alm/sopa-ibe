@@ -1,0 +1,44 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Configuracao {
+  id                Int      @id @default(1)
+  vendasAbertas     Boolean  @default(false)
+  chavePix          String   @default("44.546.659/0001-13")
+  valorUnitarioSopa Float    @default(15.0)
+  mensagemFechado   String   @default("No momento não estamos aceitando pedidos. Fique atento aos nossos avisos para o próximo domingo de sopas!")
+  atualizadoEm      DateTime @updatedAt
+}
+
+model ContatoPlantao {
+  id             Int     @id @default(autoincrement())
+  nome           String
+  numeroWhatsApp String
+  ativo          Boolean @default(true)
+}
+
+model Pedido {
+  id                 Int             @id @default(autoincrement())
+  nomeCliente        String
+  telefoneCliente    String
+  enderecoEntrega    String
+  pontoReferencia    String?
+  quantidadeSopas    Int
+  // Valores validados pela API: PIX | DINHEIRO (SQLite não oferece enum nativo no Prisma 5)
+  formaPagamento     String
+  valorTotal         Float
+  comprovantePath    String?
+  // PENDENTE | CONFIRMADO | SAIU_PARA_ENTREGA | ENTREGUE | CANCELADO
+  statusPedido       String           @default("PENDENTE")
+  // PENDENTE | CONFIRMADO
+  statusPagamento    String           @default("PENDENTE")
+  motivoCancelamento String?
+  criadoEm           DateTime        @default(now())
+  atualizadoEm       DateTime        @updatedAt
+}

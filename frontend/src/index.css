@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { @apply border-zinc-200; }
+  html { scroll-behavior: smooth; }
+  body { @apply m-0 min-w-[320px] bg-ibe-light font-sans text-ibe-black antialiased; font-family: 'Manrope', system-ui, sans-serif; }
+  button, input, select, textarea { font: inherit; }
+  button { @apply touch-manipulation; }
+}
+
+@layer components {
+  .field { @apply w-full rounded-xl border bg-white px-4 py-3 text-base outline-none transition placeholder:text-zinc-400 focus:border-ibe-yellow focus:ring-4 focus:ring-ibe-yellow/20; }
+  .label { @apply mb-1.5 block text-sm font-bold text-zinc-700; }
+  .btn-primary { @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-ibe-yellow px-5 py-3 font-extrabold text-ibe-black transition hover:bg-ibe-yellowHover disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-dark { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ibe-black px-4 py-2.5 font-bold text-white transition hover:bg-ibe-charcoal disabled:opacity-50; }
+  .btn-soft { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border bg-white px-4 py-2.5 font-bold text-zinc-700 transition hover:bg-zinc-50; }
+  .card { @apply rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-soft sm:p-6; }
+}
+
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+.animate-fade { animation: fade .18s ease-out; }
+

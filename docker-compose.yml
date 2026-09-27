@@ -1,0 +1,30 @@
+name: sopa-ibe-prod
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: file:./data/prod.db
+      JWT_SECRET: ${JWT_SECRET:-troque-esta-chave-em-producao}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@ibegerais.org.br}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      PORT: 3000
+    volumes:
+      - ./data:/app/prisma/data
+      - ./uploads:/app/uploads
+    expose:
+      - "3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
